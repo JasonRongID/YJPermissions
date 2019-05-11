@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jason.permissionlib" >
+    <application>
+        <activity android:name="com.jason.yzt_permission.YZTPermissionActivity"
+            android:theme="@style/translucent"/>
+    </application>
+</manifest>

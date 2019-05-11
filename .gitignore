@@ -1,0 +1,5 @@
+# Gradle files
+/build
+
+# Intellij
+*.iml
