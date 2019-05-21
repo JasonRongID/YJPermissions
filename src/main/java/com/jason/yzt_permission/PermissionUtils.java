@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.SimpleArrayMap;
+import android.text.TextUtils;
 import android.util.Log;
 
 
@@ -17,6 +18,8 @@ import com.jason.yzt_permission.annotation.PermissionDenied;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 public class PermissionUtils {
@@ -109,7 +112,7 @@ public class PermissionUtils {
     }
 
 
-    public static void invokAnnotation(Object object, Class annotationClass,int requestCode) {
+    public static void invokAnnotation(Object object, Class annotationClass,int requestCode,Object... params) {
 
         //获取切面上下文的类型
         Class<?> clz = object.getClass();
@@ -124,17 +127,17 @@ public class PermissionUtils {
                 if (annotation != null){
                     //判断注解里的value是否等于 权限请求码
                     if (requestCode == annotation.requestCode()){
-                        //方法类型一定要是void 否则反射报错
-                        if (method.getParameterTypes().length > 0){
-                            throw new RuntimeException("方法类型一定要是void 否则反射报错");
-                        }
-
+                        checkMethodVoid(method);
                         try {
                             //如果方法是私有的
                             if (!method.isAccessible()) {
                                 method.setAccessible(true);
                             }
-                            method.invoke(object);
+                            if (null ==params||params.length <=0){
+                                method.invoke(object);
+                            }else {
+                                method.invoke(object,params);
+                            }
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                             Log.e(TAG,e.getMessage());
@@ -149,17 +152,17 @@ public class PermissionUtils {
                 if (annotation != null){
                     //判断注解里的value是否等于 权限请求码
                     if (requestCode == annotation.requestCode()){
-                        //方法类型一定要是void 否则反射报错
-                        if (method.getParameterTypes().length > 0){
-                            throw new RuntimeException("方法类型一定要是void 否则反射报错");
-                        }
-
+                        checkMethodVoid(method);
                         try {
                             //如果方法是私有的
                             if (!method.isAccessible()) {
                                 method.setAccessible(true);
                             }
-                            method.invoke(object);
+                            if (null ==params||params.length <= 0){
+                                method.invoke(object);
+                            }else {
+                                method.invoke(object,params);
+                            }
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                             Log.e(TAG,e.getMessage());
@@ -170,19 +173,21 @@ public class PermissionUtils {
                     }
                 }
             }
-//            //获取该方法是否有PermissionCanceled注解
-//            boolean isHasAnnotation = method.isAnnotationPresent(annotationClass);
-//            method.getParameterAnnotations();
-//            if (isHasAnnotation) {
-//                method.setAccessible(true);
-//                try {
-//                    method.invoke(object);
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                } catch (InvocationTargetException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+        }
+    }
+
+    /**
+     * 检查方法是否是void
+     * @param method 需要反射的方法
+     */
+    private static void checkMethodVoid(Method method) {
+        //方法类型一定要是void 否则反射报错
+        Type genericReturntype = method.getGenericReturnType();
+        if (genericReturntype instanceof ParameterizedType){
+            Type[] actualTypeArguments = ((ParameterizedType) genericReturntype).getActualTypeArguments();
+            if (actualTypeArguments.length>0){
+                throw new RuntimeException("方法类型一定要是void 否则反射报错");
+            }
         }
     }
 }

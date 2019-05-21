@@ -2,6 +2,7 @@ package com.jason.yzt_permission.core;
 
 
 import android.content.Context;
+import android.util.ArrayMap;
 import android.util.Log;
 
 
@@ -20,6 +21,7 @@ import org.aspectj.lang.annotation.Pointcut;
 public class YZTPermissionAspect {
 
     private static final String TAG = "YZTPermissionAspect";
+    private ArrayMap<Integer,Object[]> cachePermissionMap = new ArrayMap<>();
 
     @Pointcut("execution(@com.jason.yzt_permission.annotation.Permission * *(..)) && @annotation(permission)")
     public void requestPermission(Permission permission) {
@@ -46,6 +48,7 @@ public class YZTPermissionAspect {
             Log.d(TAG, "aroundJonitPoint error ");
             return;
         }
+        cachePermissionMap.put(permission.requestCode(),joinPoint.getArgs());
 
         final Context finalContext = context;
         YZTPermissionActivity.requestPermission(context, permission.value(), permission.requestCode(), new IPermission() {
@@ -60,12 +63,16 @@ public class YZTPermissionAspect {
 
             @Override
             public void cancled(int requestCode) {
-                    PermissionUtils.invokAnnotation(object, PermissionCanceled.class,requestCode);
+                Object[] params = cachePermissionMap.get(requestCode);
+                cachePermissionMap.remove(requestCode);
+                PermissionUtils.invokAnnotation(object, PermissionCanceled.class,requestCode,params);
             }
 
             @Override
             public void denied(int requestCode) {
-                    PermissionUtils.invokAnnotation(object, PermissionDenied.class,requestCode);
+                Object[] params = cachePermissionMap.get(requestCode);
+                cachePermissionMap.remove(requestCode);
+                    PermissionUtils.invokAnnotation(object, PermissionDenied.class,requestCode, params);
             }
 
         });

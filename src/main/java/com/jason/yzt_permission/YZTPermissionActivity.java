@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.jason.permissionlib.R;
 import com.jason.permissionlib.interfaceImpl.IYZTPermissionCallback;
@@ -27,7 +28,11 @@ public class YZTPermissionActivity extends Activity{
 
     private String[] mPermissions;
     private int mRequestCode;
+    private String params;
     private static IPermission permissionListener;
+
+    List<String>  mPermissionList = new ArrayList<>();
+
 
     /**
      * 请求权限
@@ -54,7 +59,6 @@ public class YZTPermissionActivity extends Activity{
         setContentView(R.layout.activity_yzt_permission_layout);
         this.mPermissions = getIntent().getStringArrayExtra(PARAM_PERMISSION);
         this.mRequestCode = getIntent().getIntExtra(PARAM_REQUEST_CODE, -1);
-
         if (mPermissions == null || mRequestCode < 0 || permissionListener == null) {
             this.finish();
             return;
@@ -66,7 +70,19 @@ public class YZTPermissionActivity extends Activity{
             finish();
             return;
         }
-        ActivityCompat.requestPermissions(this, this.mPermissions, this.mRequestCode);
+        mPermissionList.clear();//清空已经允许的没有通过的权限
+        //逐个判断是否还有未通过的权限
+        for (int i = 0;i<mPermissions.length;i++){
+            if (ContextCompat.checkSelfPermission(this,mPermissions[i])!=
+                    PackageManager.PERMISSION_GRANTED){
+                mPermissionList.add(mPermissions[i]);//添加还未授予的权限到mPermissionList中
+            }
+        }
+        //申请权限
+        if (mPermissionList.size()>0){//有权限没有通过，需要申请
+            ActivityCompat.requestPermissions(this,mPermissions,this.mRequestCode);
+        }
+//        ActivityCompat.requestPermissions(this, this.mPermissions, this.mRequestCode);
 
     }
 
