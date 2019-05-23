@@ -38,18 +38,17 @@ public class YZTPermissionActivity extends Activity{
      * 请求权限
      */
     public static void requestPermission(Context context, String[] permissions, int requestCode, IPermission iPermission) {
-
-        permissionListener = iPermission;
-        Intent intent = new Intent(context, YZTPermissionActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        Bundle bundle = new Bundle();
-        bundle.putStringArray(PARAM_PERMISSION, permissions);
-        bundle.putInt(PARAM_REQUEST_CODE, requestCode);
-        intent.putExtras(bundle);
-        context.startActivity(intent);
-        if (context instanceof Activity) {
-            ((Activity) context).overridePendingTransition(0, 0);
-        }
+            permissionListener = iPermission;
+            Intent intent = new Intent(context, YZTPermissionActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Bundle bundle = new Bundle();
+            bundle.putStringArray(PARAM_PERMISSION, permissions);
+            bundle.putInt(PARAM_REQUEST_CODE, requestCode);
+            intent.putExtras(bundle);
+            context.startActivity(intent);
+            if (context instanceof Activity) {
+                ((Activity) context).overridePendingTransition(0, 0);
+            }
     }
 
     @Override
@@ -82,8 +81,6 @@ public class YZTPermissionActivity extends Activity{
         if (mPermissionList.size()>0){//有权限没有通过，需要申请
             ActivityCompat.requestPermissions(this,mPermissions,this.mRequestCode);
         }
-//        ActivityCompat.requestPermissions(this, this.mPermissions, this.mRequestCode);
-
     }
 
     /**

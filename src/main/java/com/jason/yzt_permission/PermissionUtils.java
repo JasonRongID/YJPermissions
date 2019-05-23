@@ -111,7 +111,13 @@ public class PermissionUtils {
         return false;
     }
 
-
+    /**
+     * 常见的方法
+     * @param object 上下文
+     * @param annotationClass 注解Class
+     * @param requestCode 请求码
+     * @param params 请求参数
+     */
     public static void invokAnnotation(Object object, Class annotationClass,int requestCode,Object... params) {
 
         //获取切面上下文的类型
@@ -121,6 +127,36 @@ public class PermissionUtils {
         if (methods == null) {
             return;
         }
+        invokePermissionMethod(object, annotationClass, requestCode, methods, params);
+    }
+
+    /**
+     * 特殊的方法 针对内部类
+     * @param object 切面上下文
+     * @param clz 内部类class
+     * @param annotationClass 注解class
+     * @param requestCode 请求码
+     * @param params 请求参数
+     */
+    public static void invokAnnotationSpecial(Object object,Class<?> clz,Class annotationClass,int requestCode,Object... params) {
+
+        //获取切面上下文的类型
+        if (clz == null) return;
+        //获取类型中的方法
+        Method[] methods = clz.getDeclaredMethods();
+        if (methods == null) return;
+        invokePermissionMethod(object, annotationClass, requestCode, methods, params);
+    }
+
+    /**
+     * 反射含有注解的方法
+     * @param object 上下文
+     * @param annotationClass 注解Class
+     * @param requestCode 请求码
+     * @param methods 找到的含有注解的方法
+     * @param params 请求参数
+     */
+    private static void invokePermissionMethod(Object object, Class annotationClass, int requestCode, Method[] methods, Object[] params) {
         for (Method method : methods) {
             if (annotationClass == PermissionCanceled.class){
                 PermissionCanceled annotation = method.getAnnotation(PermissionCanceled.class);
